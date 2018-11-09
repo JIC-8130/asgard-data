@@ -47,16 +47,26 @@ app.get("/users/:id/data", function (req, res) {
         .into(res, '{}');
 });
 
-// app.get("costcenters/:ccID", function(req, res) {
-//     req.sql()
-// });
-
+/**
+ * Creates a new user. Users headers of type application/x-www-form-urlencoded.
+ */
 app.post("/users/new-user", function (req, res) {
 
-    // var addStmt1 = jsonSql.build({
-    //     type: "insert",
-    //     table: "Users",
-    //     values: userData.values
-    // });
-    res.json({ "that mf T H A N G": "on me", params: req.body });
+    var addStmt1 = jsonSQL.build({
+        type: "insert",
+        table: "Users",
+        values: req.body
+    });
+    req.sql(addStmt1.query)
+        .param("p1", req.body.YCA_ID, TYPES.BigInt)
+        .param("p2", req.body.FirstName, TYPES.VarChar)
+        .param("p3", req.body.LastName, TYPES.VarChar)
+        .param("p4", req.body.Email, TYPES.VarChar)
+        .param("p5", req.body.UsrType, TYPES.VarChar)
+        .param("p6", req.body.password, TYPES.VarChar)
+        .exec(res);
+
+    res.json({ status: "user added!" });
+
 });
+

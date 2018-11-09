@@ -1,0 +1,13 @@
+{
+  "name": "asgard-data",
+  "version": "0.0.1",
+  "description": "a RESTful API for use in the ASGARD application.",
+  "main": "server.js",
+  "author": "Team 8130",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "json-sql": "^0.4.11",
+    "tedious": "^3.0.1"
+  }
+}

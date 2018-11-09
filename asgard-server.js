@@ -22,11 +22,24 @@ var server = app.listen(process.env.PORT || 6969, function () {
 /**
  * Gets a user given an id.
  */
-app.get("/user/:id", function (req, res) {
+app.get("/users/:id/data", function (req, res) {
     // res.json({ yeet: "yote" });
+    var userSelectSQL = jsonSQL.build(
+        {
+            type: "select",
+            table: "Users",
+            condition: [
+                { YCA_ID: { $eq: req.params.id } }
+            ]
+        }
+    );
+    console.log(userSelectSQL.query);
     console.log("Getting user ", req.params.id);
-    req.sql("select * from Users where YCA_ID = @id for json path, without_array_wrapper")
-        .param('id', req.params.id, TYPES.BigInt)
+    req.sql(userSelectSQL.query.replace(";", "") + " for json path, without_array_wrapper")
+        .param('p1', req.params.id, TYPES.BigInt)
         .into(res, '{}');
-
 });
+
+// app.get("costcenters/:ccID", function(req, res) {
+//     req.sql()
+// });

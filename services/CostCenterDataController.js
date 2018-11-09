@@ -1,7 +1,7 @@
 var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;
 var TYPES = require("tedious").TYPES;
-const jsonSql = require("json-sql")({valuesPrefix: "@"});
+const jsonSql = require("json-sql")({ valuesPrefix: "@" });
 
 const DEBUG = true;
 
@@ -23,17 +23,17 @@ function createConnection() {
  */
 function getAllDataFrom(costCenter) {
     var connection = createConnection();
-    connection.on('connect', function(err) {
-            if (err) {
-                console.log(err);
-                return false;
-            }
-            else {  
-                connection.execSql(queryGetAll(costCenter));
-                // connection.close();
-                return true;
-            }
+    connection.on('connect', function (err) {
+        if (err) {
+            console.log(err);
+            return false;
         }
+        else {
+            connection.execSql(queryGetAll(costCenter));
+            // connection.close();
+            return true;
+        }
+    }
     );
 }
 
@@ -47,10 +47,10 @@ function queryGetAll(costCenter) {
 
     console.log('Reading rows from the Table...');
 
-       // Read all rows from table
+    // Read all rows from table
     request = new Request(
         "SELECT * FROM " + costCenter,
-        function(err, rowCount, rows) { 
+        function (err, rowCount, rows) {
             if (err) {
                 console.log(err);
             }
@@ -60,9 +60,9 @@ function queryGetAll(costCenter) {
         }
     );
     if (DEBUG) {
-        request.on('row', function(columns) {
+        request.on('row', function (columns) {
             columns.forEach(
-                function(column) {
+                function (column) {
                     console.log("%s\t%s", column.metadata.colName, column.value);
                 }
             );
@@ -80,19 +80,19 @@ function queryGetAll(costCenter) {
  */
 function getDataFrom(costCenter, date) {
     var connection = createConnection();
-    connection.on('connect', function(err) {
-            if (err) {
-                console.log(err);
-                return false;
-            }
-            else {  
-                jsonData = {};
-                connection.execSql(queryGetCCData(costCenter, date, jsonData));
-                // connection.close();
-                // console.log("This is the jsonData obj: \n" + JSON.stringify(jsonData));
-                return jsonData;
-            }
+    connection.on('connect', function (err) {
+        if (err) {
+            console.log(err);
+            return false;
         }
+        else {
+            jsonData = {};
+            connection.execSql(queryGetCCData(costCenter, date, jsonData));
+            // connection.close();
+            // console.log("This is the jsonData obj: \n" + JSON.stringify(jsonData));
+            return jsonData;
+        }
+    }
     );
 }
 
@@ -108,13 +108,13 @@ function queryGetCCData(costCenter, date, jsonData) {
         {
             type: "select",
             table: costCenter,
-            condition: {InputDate: {$eq: date}}
+            condition: { InputDate: { $eq: date } }
         }
     );
 
     request = new Request(
         getStmt.query,
-        function(err, rowCount, rows) {
+        function (err, rowCount, rows) {
             if (err) {
                 throw err;
             } else {
@@ -125,15 +125,15 @@ function queryGetCCData(costCenter, date, jsonData) {
 
     );
 
-    request.on('row', function(columns) {
+    request.on('row', function (columns) {
         columns.forEach(
-            function(column) {
+            function (column) {
                 jsonData[column.metadata.colName] = column.value;
             }
         );
     });
-    
-    request.on("doneProc", function() {
+
+    request.on("doneProc", function () {
         console.log("Done with request");
     });
 
@@ -169,16 +169,16 @@ function queryGetCCData(costCenter, date, jsonData) {
  */
 function addToCostCenter(ccData) {
     var connection = createConnection();
-    connection.on('connect', function(err) {
-            if (err) {
-                console.log(err);
-                return false;
-            }
-            else {  
-                connection.execSql(addCCRow(ccData));
-                return true;
-            }
+    connection.on('connect', function (err) {
+        if (err) {
+            console.log(err);
+            return false;
         }
+        else {
+            connection.execSql(addCCRow(ccData));
+            return true;
+        }
+    }
     );
 }
 
@@ -199,7 +199,7 @@ function addCCRow(ccData) {
 
     var addReq = new Request(
         addStmt1.query,
-        function(err) {
+        function (err) {
             if (err) {
                 throw err;
             }

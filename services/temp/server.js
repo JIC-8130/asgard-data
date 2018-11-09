@@ -3,7 +3,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 // var sql = require("mssql");
 var app = express();
-var UserDataController = require("./services/CreateAccountDataController");
+var UserDataController = require("../CreateAccountDataController");
 
 // Body Parser Middleware
 app.use(bodyParser.json());
@@ -54,7 +54,10 @@ var dbConfig = require("./secrets/db-config.json");
 app.get("/api/user", function (req, res) {
     // var query = "select * from [user]";
     // executeQuery(res, query);
-    UserDataController.getUser("12345678");
+    // res.json(JSON.stringify(UserDataController.getUser("12345678")));
+    console.log(JSON.stringify(UserDataController.getUser("12345678")));
+
+    // res.json(["this", "is", "a", "response"]);
 });
 
 //POST API

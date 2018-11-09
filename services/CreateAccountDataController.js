@@ -17,9 +17,9 @@ function createConnection() {
 }
 
 
-function getUserHelper(userID) {
+function getUserHelper(userID, jsonData) {
 
-    console.log('Reading rows from the Table...');
+    console.log('Fetching user...');
 
     var userSelectSQL = jsonSql.build(
         {
@@ -43,15 +43,19 @@ function getUserHelper(userID) {
             }
         }
     );
-    if (DEBUG) {
-        request.on('row', function (columns) {
-            columns.forEach(
-                function (column) {
-                    console.log("%s\t%s", column.metadata.colName, column.value);
-                }
-            );
-        });
-    }
+
+    request.on('row', function (columns) {
+        columns.forEach(
+            function (column) {
+                jsonData[column.metadata.colName] = column.value;
+            }
+        );
+    });
+
+    request.on("doneProc", function () {
+        console.log("This is the jsonData obj: \n" + JSON.stringify(jsonData));
+    });
+
     request.addParameter("p1", TYPES.BigInt, parseInt(userID));
     return request;
 }
@@ -65,9 +69,10 @@ function getUser(userID) {
             return false;
         }
         else {
-            connection.execSql(getUserHelper(userID));
+            jsonData = {};
+            connection.execSql(getUserHelper(userID, jsonData));
             // connection.close();
-            return true;
+            return jsonData;
         }
     }
     );

@@ -5,6 +5,7 @@ var connection = require("./secrets/db-config.json");
 // var TYPES = require("express4-tedious").TYPES;
 var TYPES = require("tedious").TYPES;
 var jsonSQL = require("json-sql")({ valuesPrefix: "@" });
+var bodyParser = require("body-parser");
 
 var app = express();
 app.use(function (req, res, next) {
@@ -14,6 +15,10 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, contentType,Content-Type, Accept, Authorization");
     next();
 });
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
+
 
 
 var server = app.listen(process.env.PORT || 6969, function () {
@@ -45,3 +50,13 @@ app.get("/users/:id/data", function (req, res) {
 // app.get("costcenters/:ccID", function(req, res) {
 //     req.sql()
 // });
+
+app.post("/users/new-user", function (req, res) {
+
+    // var addStmt1 = jsonSql.build({
+    //     type: "insert",
+    //     table: "Users",
+    //     values: userData.values
+    // });
+    res.json({ "that mf T H A N G": "on me", params: req.body });
+});

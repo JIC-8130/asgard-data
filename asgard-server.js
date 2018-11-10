@@ -1,3 +1,10 @@
+/**
+ * TODO:
+ *     - Error handling
+ *     - Error reporting (ie if the server crashes let someone know)
+ *     - 
+ */
+
 var express = require('express');
 var tediousExpress = require('express4-tedious');
 var connection = require("./secrets/db-config.json");

@@ -5,8 +5,9 @@ var TYPES = require("tedious").TYPES;
 var jsonSQL = require("json-sql")({ valuesPrefix: "@" });
 var bodyParser = require("body-parser");
 
-var app = express();
-app.use(function (req, res, next) {
+// Declare our app with Express.
+var asgardDataAPI = express();
+asgardDataAPI.use(function (req, res, next) {
     req.sql = tediousExpress(connection);
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
@@ -14,12 +15,21 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }))
+/**
+ * This lets us actually be able to access the body of 
+ * the request, which contains the data to be added to the db.
+ */
+asgardDataAPI.use(bodyParser.json());
+asgardDataAPI.use(bodyParser.urlencoded({ extended: true }))
+
+
+// Not really sure why we need this, since the documentation for 
+// express4-tedious isn't great, but we need it :P
+const MAGIC_JSON_STRING = " for json path, without_array_wrapper";
 
 
 
-var server = app.listen(process.env.PORT || 6969, function () {
+var server = asgardDataAPI.listen(process.env.PORT || 6969, function () {
     var port = server.address().port;
     console.log("asgard-data now running on port", port);
 });
@@ -28,7 +38,7 @@ var server = app.listen(process.env.PORT || 6969, function () {
 /**
  * Gets a user given an id.
  */
-app.get("/users/:id", function (req, res) {
+asgardDataAPI.get("/users/:id", function (req, res) {
     // res.json({ yeet: "yote" });
     var userSelectSQL = jsonSQL.build(
         {
@@ -40,7 +50,7 @@ app.get("/users/:id", function (req, res) {
         }
     );
     console.log("Getting user ", req.params.id);
-    req.sql(userSelectSQL.query.replace(";", "") + " for json path, without_array_wrapper")
+    req.sql(userSelectSQL.query.replace(";", "") + MAGIC_JSON_STRING)
         .param('p1', req.params.id, TYPES.BigInt)
         .into(res, '{}');
 });
@@ -48,7 +58,7 @@ app.get("/users/:id", function (req, res) {
 /**
  * Creates a new user. Users headers of type application/x-www-form-urlencoded.
  */
-app.post("/users/new-user", function (req, res) {
+asgardDataAPI.post("/users/new-user", function (req, res) {
 
     var addStmt1 = jsonSQL.build({
         type: "insert",
@@ -69,9 +79,11 @@ app.post("/users/new-user", function (req, res) {
 });
 
 /**
- * Gets all data from a given cost center.
+ * Handles a GET request for a cost center. If no date is given,
+ * returns all rows for that cost center. If a date param is passed,
+ * returns only the data from that specific row.
  */
-app.get("/costcenters/:id", function (req, res) {
+asgardDataAPI.get("/costcenters/:id", function (req, res) {
     var date = req.query.date;
     if (date != null) {
         console.log("Fetching data from " + date + "...");
@@ -83,7 +95,7 @@ app.get("/costcenters/:id", function (req, res) {
             ]
         });
 
-        req.sql(dateGetStmt.query.replace(";", "") + " for json path, without_array_wrapper")
+        req.sql(dateGetStmt.query.replace(";", "") + MAGIC_JSON_STRING)
             .param('p1', date, TYPES.Date)
             .into(res, "{}");
     } else {
@@ -91,7 +103,7 @@ app.get("/costcenters/:id", function (req, res) {
             type: "select",
             table: req.params.id
         });
-        req.sql(getStmt.query.replace(";", "") + " for json path, without_array_wrapper").into(res, "{}");
+        req.sql(getStmt.query.replace(";", "") + MAGIC_JSON_STRING).into(res, "{}");
     }
 
 });
@@ -99,7 +111,7 @@ app.get("/costcenters/:id", function (req, res) {
 /**
  * Creates a new entry for a given date in a cost center.
  */
-app.post("/costcenters/:id/add", function (req, res) {
+asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
     var addCCStmt = jsonSQL.build({
         type: "insert",
         table: req.params.id,

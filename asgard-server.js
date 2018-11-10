@@ -1,8 +1,6 @@
 var express = require('express');
 var tediousExpress = require('express4-tedious');
 var connection = require("./secrets/db-config.json");
-// var UserDataController = require("./services/UserDataController");
-// var TYPES = require("express4-tedious").TYPES;
 var TYPES = require("tedious").TYPES;
 var jsonSQL = require("json-sql")({ valuesPrefix: "@" });
 var bodyParser = require("body-parser");
@@ -71,7 +69,7 @@ app.post("/users/new-user", function (req, res) {
 });
 
 /**
- * Gets all data from a give cost center.
+ * Gets all data from a given cost center.
  */
 app.get("/costcenters/:id", function (req, res) {
     var date = req.query.date;
@@ -95,6 +93,36 @@ app.get("/costcenters/:id", function (req, res) {
         });
         req.sql(getStmt.query.replace(";", "") + " for json path, without_array_wrapper").into(res, "{}");
     }
+
+});
+
+/**
+ * Creates a new entry for a given date in a cost center.
+ */
+app.post("/costcenters/:id/add", function (req, res) {
+    var addCCStmt = jsonSQL.build({
+        type: "insert",
+        table: req.params.id,
+        values: req.body
+    });
+
+    req.sql(addCCStmt.query)
+        .param("p1", req.body.InputDate, TYPES.Date)
+        .param("p2", req.body.UnitsProduced, TYPES.Int)
+        .param("p3", req.body.Defects, TYPES.Int)
+        .param("p4", req.body.WorkerTotal, TYPES.Int)
+        .param("p5", req.body.SInc_Num, TYPES.Int)
+        .param("p6", req.body.QInc_Num, TYPES.Int)
+        .param("p7", req.body.SInc_Reason, TYPES.Text)
+        .param("p8", req.body.QInc_Reason, TYPES.Text)
+        .param("p9", req.body.HighUtil, TYPES.Text)
+        .param("p10", req.body.LoUtil, TYPES.Text)
+        .param("p11", req.body.Overtime, TYPES.Int)
+        .param("p12", req.body.Downtime, TYPES.Int)
+        .exec(res);
+    res.json({ status: "Cost Center data added successfully!" });
+    // res.sendStatus();
+
 
 });
 

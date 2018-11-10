@@ -140,8 +140,23 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
         .param("p12", req.body.Downtime, TYPES.Int)
         .exec(res);
     res.json({ status: "Cost Center data added successfully!" });
-    // res.sendStatus();
-
-
 });
 
+/**
+ * Authentication for our users.
+ */
+asgardDataAPI.get("/auth", function (req, res) {
+    var authStmt = jsonSQL.build({
+        type: "select",
+        table: "Users",
+        condition: [
+            { YCA_ID: { $eq: req.body.YCA_ID } },
+            { password: { $eq: req.body.password } }
+        ]
+    });
+
+    req.sql(authStmt.query.replace(";", "") + MAGIC_JSON_STRING)
+        .param("p1", req.body.YCA_ID, TYPES.BigInt)
+        .param("p2", req.body.password, TYPES.VarChar)
+        .into(res, "error: authentication failed.");
+});

@@ -30,7 +30,7 @@ var server = app.listen(process.env.PORT || 6969, function () {
 /**
  * Gets a user given an id.
  */
-app.get("/users/:id/data", function (req, res) {
+app.get("/users/:id", function (req, res) {
     // res.json({ yeet: "yote" });
     var userSelectSQL = jsonSQL.build(
         {
@@ -67,6 +67,34 @@ app.post("/users/new-user", function (req, res) {
         .exec(res);
 
     res.json({ status: "user added!" });
+
+});
+
+/**
+ * Gets all data from a give cost center.
+ */
+app.get("/costcenters/:id", function (req, res) {
+    var date = req.query.date;
+    if (date != null) {
+        console.log("Fetching data from " + date + "...");
+        var dateGetStmt = jsonSQL.build({
+            type: "select",
+            table: req.params.id,
+            condition: [
+                { InputDate: { $eq: date } }
+            ]
+        });
+
+        req.sql(dateGetStmt.query.replace(";", "") + " for json path, without_array_wrapper")
+            .param('p1', date, TYPES.Date)
+            .into(res, "{}");
+    } else {
+        var getStmt = jsonSQL.build({
+            type: "select",
+            table: req.params.id
+        });
+        req.sql(getStmt.query.replace(";", "") + " for json path, without_array_wrapper").into(res, "{}");
+    }
 
 });
 

@@ -11,9 +11,11 @@
     "express4-tedious": "^0.3.0",
     "json-sql": "^0.4.11",
     "node-fetch": "^2.2.1",
+    "nodemon": "^1.18.6",
     "tedious": "^3.0.1"
   },
   "scripts": {
-    "start": "node asgard-server.js"
+    "start": "node asgard-server.js",
+    "dev": "nodemon asgard-server.js"
   }
 }

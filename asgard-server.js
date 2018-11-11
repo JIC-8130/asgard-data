@@ -129,7 +129,6 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
         values: req.body
     });
 
-
     req.sql(addCCStmt.query)
         .param("p1", req.body.InputDate, TYPES.Date)
         .param("p2", req.body.UnitsProduced, TYPES.Int)

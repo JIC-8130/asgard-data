@@ -43,6 +43,13 @@ var server = asgardDataAPI.listen(process.env.PORT || 6969, function () {
 });
 
 
+// NOTE: all of these endpoints expect bodies to be in headers of type application/x-www-form-urlencoded.
+
+
+asgardDataAPI.get("/", function (req, res) {
+    res.json("Hello! Welcome to the ASGARD API.");
+});
+
 /**
  * Gets a user given an id.
  */
@@ -64,7 +71,7 @@ asgardDataAPI.get("/users/:id", function (req, res) {
 });
 
 /**
- * Creates a new user. Users headers of type application/x-www-form-urlencoded.
+ * Creates a new user. 
  */
 asgardDataAPI.post("/users/new-user", function (req, res) {
     req.body["Salt"] = "";
@@ -144,4 +151,9 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
         .param("p12", req.body.Downtime, TYPES.Int)
         .exec(res);
     res.json({ status: "Cost Center data added successfully!" });
+});
+
+
+asgardDataAPI.get("/jackets", function (req, res) {
+    res.json({ good_word: "To HELL with georgia!", them_dawgs: "piss on 'em!" });
 });

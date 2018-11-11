@@ -11,6 +11,7 @@ var connection = require("./secrets/db-config.json");
 var TYPES = require("tedious").TYPES;
 var jsonSQL = require("json-sql")({ valuesPrefix: "@" });
 var bodyParser = require("body-parser");
+var jdCrypto = require("./encryption.js");
 
 // Declare our app with Express.
 var asgardDataAPI = express();
@@ -66,22 +67,25 @@ asgardDataAPI.get("/users/:id", function (req, res) {
  * Creates a new user. Users headers of type application/x-www-form-urlencoded.
  */
 asgardDataAPI.post("/users/new-user", function (req, res) {
-
+    req.body["Salt"] = "";
     var addStmt1 = jsonSQL.build({
         type: "insert",
         table: "Users",
         values: req.body
     });
+    // Create the hash and salt for this password
+    var passwordData = jdCrypto.saltHashPassword(req.body.password);
     req.sql(addStmt1.query)
         .param("p1", req.body.YCA_ID, TYPES.BigInt)
         .param("p2", req.body.FirstName, TYPES.VarChar)
         .param("p3", req.body.LastName, TYPES.VarChar)
         .param("p4", req.body.Email, TYPES.VarChar)
         .param("p5", req.body.UsrType, TYPES.VarChar)
-        .param("p6", req.body.password, TYPES.VarChar)
+        .param("p6", passwordData.passwordHash, TYPES.VarChar)
+        .param("p7", passwordData.salt, TYPES.NVarChar)
         .exec(res);
 
-    res.json({ status: "user added!" });
+    // res.json({ status: "user added!" });
 
 });
 
@@ -125,6 +129,7 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
         values: req.body
     });
 
+
     req.sql(addCCStmt.query)
         .param("p1", req.body.InputDate, TYPES.Date)
         .param("p2", req.body.UnitsProduced, TYPES.Int)
@@ -140,23 +145,4 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
         .param("p12", req.body.Downtime, TYPES.Int)
         .exec(res);
     res.json({ status: "Cost Center data added successfully!" });
-});
-
-/**
- * Authentication for our users.
- */
-asgardDataAPI.get("/auth", function (req, res) {
-    var authStmt = jsonSQL.build({
-        type: "select",
-        table: "Users",
-        condition: [
-            { YCA_ID: { $eq: req.body.YCA_ID } },
-            { password: { $eq: req.body.password } }
-        ]
-    });
-
-    req.sql(authStmt.query.replace(";", "") + MAGIC_JSON_STRING)
-        .param("p1", req.body.YCA_ID, TYPES.BigInt)
-        .param("p2", req.body.password, TYPES.VarChar)
-        .into(res, "error: authentication failed.");
 });

@@ -74,22 +74,22 @@ asgardDataAPI.get("/users/:id", function (req, res) {
  * Creates a new user. 
  */
 asgardDataAPI.post("/users/new-user", function (req, res) {
-    req.body["Salt"] = "";
+    req.body["Salt"] = "SALT";
     var addStmt1 = jsonSQL.build({
         type: "insert",
         table: "Users",
         values: req.body
     });
     // Create the hash and salt for this password
-    var passwordData = jdCrypto.saltHashPassword(req.body.password);
+    // var passwordData = {passwordHash: req.body.password}//jdCrypto.saltHashPassword(req.body.password);
     req.sql(addStmt1.query)
         .param("p1", req.body.YCA_ID, TYPES.BigInt)
         .param("p2", req.body.FirstName, TYPES.VarChar)
         .param("p3", req.body.LastName, TYPES.VarChar)
         .param("p4", req.body.Email, TYPES.VarChar)
         .param("p5", req.body.UsrType, TYPES.VarChar)
-        .param("p6", passwordData.passwordHash, TYPES.VarChar)
-        .param("p7", passwordData.salt, TYPES.NVarChar)
+        .param("p6", req.body.password, TYPES.VarChar)
+        .param("p7", req.body.Salt, TYPES.NVarChar)
         .exec(res);
 
     // res.json({ status: "user added!" });

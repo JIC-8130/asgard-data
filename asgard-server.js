@@ -31,9 +31,12 @@ asgardDataAPI.use(bodyParser.json());
 asgardDataAPI.use(bodyParser.urlencoded({ extended: true }))
 
 
-// Not really sure why we need this, since the documentation for 
-// express4-tedious isn't great, but we need it :P
-const MAGIC_JSON_STRING = " for json path, without_array_wrapper";
+// We need these strings to format the data from the SQL Server as JSON.
+// The first one returns JSON objects plainly, not in an array.
+// The second (which we need in case of having more than one object in the response)
+// adds the array wrapper around the response.
+const JSON_FRMT_STR_NO_WRAP = " for json path, without_array_wrapper";
+const JSON_FRMT_STR_WRAP = " for json path"
 
 
 
@@ -65,7 +68,7 @@ asgardDataAPI.get("/users/:id", function (req, res) {
         }
     );
     console.log("Getting user ", req.params.id);
-    req.sql(userSelectSQL.query.replace(";", "") + MAGIC_JSON_STRING)
+    req.sql(userSelectSQL.query.replace(";", "") + JSON_FRMT_STR_NO_WRAP)
         .param('p1', req.params.id, TYPES.BigInt)
         .into(res, '{}');
 });
@@ -113,7 +116,7 @@ asgardDataAPI.get("/costcenters/:id", function (req, res) {
             ]
         });
 
-        req.sql(dateGetStmt.query.replace(";", "") + MAGIC_JSON_STRING)
+        req.sql(dateGetStmt.query.replace(";", "") + JSON_FRMT_STR_NO_WRAP)
             .param('p1', date, TYPES.Date)
             .into(res, "{}");
     } else {
@@ -121,7 +124,7 @@ asgardDataAPI.get("/costcenters/:id", function (req, res) {
             type: "select",
             table: req.params.id
         });
-        req.sql(getStmt.query.replace(";", "") + MAGIC_JSON_STRING).into(res, "{}");
+        req.sql(getStmt.query.replace(";", "") + JSON_FRMT_STR_WRAP).into(res, "{}");
     }
 
 });

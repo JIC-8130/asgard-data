@@ -156,6 +156,50 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
     res.json({ status: "Cost Center data added successfully!" });
 });
 
+/**
+ * Updates a given record in a cost center's data.
+ */
+asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
+    var updateStmt = jsonSQL.build({
+        type: "update",
+        table: req.params.id,
+        condition: {
+            InputDate: req.query.date
+        },
+        modifier: {
+            InputDate: req.body.InputDate,
+            UnitsProduced: req.body.UnitsProduced,
+            Defects: req.body.Defects,
+            WorkerTotal: req.body.WorkerTotal,
+            SInc_Num: req.body.SInc_Num,
+            QInc_Num: req.body.QInc_Num,
+            SInc_Reason: req.body.SInc_Reason,
+            QInc_Reason: req.body.QInc_Reason,
+            HighUtil: req.body.HighUtil,
+            LoUtil: req.body.LoUtil,
+            Overtime: req.body.Overtime,
+            Downtime: req.body.Downtime,
+        }
+    });
+
+
+    req.sql(updateStmt.query)
+        .param("p1", req.body.InputDate, TYPES.Date)
+        .param("p2", req.body.UnitsProduced, TYPES.Int)
+        .param("p3", req.body.Defects, TYPES.Int)
+        .param("p4", req.body.WorkerTotal, TYPES.Int)
+        .param("p5", req.body.SInc_Num, TYPES.Int)
+        .param("p6", req.body.QInc_Num, TYPES.Int)
+        .param("p7", req.body.SInc_Reason, TYPES.Text)
+        .param("p8", req.body.QInc_Reason, TYPES.Text)
+        .param("p9", req.body.HighUtil, TYPES.Text)
+        .param("p10", req.body.LoUtil, TYPES.Text)
+        .param("p11", req.body.Overtime, TYPES.Int)
+        .param("p12", req.body.Downtime, TYPES.Int)
+        .param("p13", req.query.date, TYPES.Date)
+        .exec(res);
+});
+
 
 asgardDataAPI.get("/jackets", function (req, res) {
     res.json({ good_word: "To HELL with georgia!", them_dawgs: "piss on 'em!" });

@@ -161,6 +161,8 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
  * Updates a given record in a cost center's data.
  */
 asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
+    var ta = calc.timeAvailable(parseInt(req.body.WorkerTotal));
+    var prod = calc.mhProductivity(parseInt(req.body.UnitsProduced), ta);
     var updateStmt = jsonSQL.build({
         type: "update",
         table: req.params.id,
@@ -180,6 +182,7 @@ asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
             LoUtil: req.body.LoUtil,
             Overtime: req.body.Overtime,
             Downtime: req.body.Downtime,
+            mhProd: prod
         }
     });
 
@@ -198,6 +201,7 @@ asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
         .param("p11", req.body.Overtime, TYPES.Int)
         .param("p12", req.body.Downtime, TYPES.Int)
         .param("p13", req.query.date, TYPES.Date)
+        .param("p14", prod, TYPES.BigInt)
         .exec(res);
 });
 

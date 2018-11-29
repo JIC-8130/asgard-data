@@ -12,6 +12,7 @@ var TYPES = require("tedious").TYPES;
 var jsonSQL = require("json-sql")({ valuesPrefix: "@" });
 var bodyParser = require("body-parser");
 var jdCrypto = require("./encryption.js");
+var calc = require("./services/asgardCalc");
 
 // Declare our app with Express.
 var asgardDataAPI = express();
@@ -203,4 +204,11 @@ asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
 
 asgardDataAPI.get("/jackets", function (req, res) {
     res.json({ good_word: "To HELL with georgia!", them_dawgs: "piss on 'em!" });
+});
+
+// Test thingy
+asgardDataAPI.post("/calc", function (req, res) {
+    var ta = calc.timeAvailable(parseInt(req.body.workers));
+    var prod = calc.mhProductivity(parseInt(req.body.quantity), ta);
+    res.json(`Manhour Productivity: ${prod}`);
 });

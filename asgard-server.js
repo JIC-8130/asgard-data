@@ -134,6 +134,11 @@ asgardDataAPI.get("/costcenters/:id", function (req, res) {
  * Creates a new entry for a given date in a cost center.
  */
 asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
+    // Calculating manhour productivity
+    var ta = calc.timeAvailable(parseInt(req.body.WorkerTotal));
+    var prod = calc.mhProductivity(parseInt(req.body.UnitsProduced), ta);
+    req.body["mhProd"] = prod; // Adding manhour productivity to the body object
+
     var addCCStmt = jsonSQL.build({
         type: "insert",
         table: req.params.id,
@@ -153,16 +158,15 @@ asgardDataAPI.post("/costcenters/:id/add", function (req, res) {
         .param("p10", req.body.LoUtil, TYPES.Text)
         .param("p11", req.body.Overtime, TYPES.Int)
         .param("p12", req.body.Downtime, TYPES.Int)
+        .param("p13", prod, TYPES.Float)
         .exec(res);
-    res.json({ status: "Cost Center data added successfully!" });
+    // res.json({ status: "Cost Center data added successfully!" });
 });
 
 /**
  * Updates a given record in a cost center's data.
  */
 asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
-    var ta = calc.timeAvailable(parseInt(req.body.WorkerTotal));
-    var prod = calc.mhProductivity(parseInt(req.body.UnitsProduced), ta);
     var updateStmt = jsonSQL.build({
         type: "update",
         table: req.params.id,
@@ -182,7 +186,7 @@ asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
             LoUtil: req.body.LoUtil,
             Overtime: req.body.Overtime,
             Downtime: req.body.Downtime,
-            mhProd: prod
+            mhProd: req.body.mhProd
         }
     });
 
@@ -200,8 +204,8 @@ asgardDataAPI.post("/costcenters/:id/update", function (req, res) {
         .param("p10", req.body.LoUtil, TYPES.Text)
         .param("p11", req.body.Overtime, TYPES.Int)
         .param("p12", req.body.Downtime, TYPES.Int)
-        .param("p13", req.query.date, TYPES.Date)
-        .param("p14", prod, TYPES.BigInt)
+        .param("p13", req.body.mhProd, TYPES.Float)
+        .param("p14", req.query.date, TYPES.Date)
         .exec(res);
 });
 

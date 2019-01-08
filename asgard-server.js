@@ -51,6 +51,10 @@ asgardDataAPI.get("/", function(req, res) {
     res.json("Hello! Welcome to the ASGARD API.");
 });
 
+asgardDataAPI.get("/bread", function(req, res) {
+    res.json("we getting it");
+});
+
 /**
  * Gets a user given an id.
  */

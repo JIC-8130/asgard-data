@@ -193,21 +193,21 @@ asgardDataAPI.get("/jackets", function(req, res) {
     res.json({ good_word: "To HELL with georgia!", them_dawgs: "piss on 'em!" });
 });
 
-asgardDataAPI.post("/auth/:id", function(req, res) {
+asgardDataAPI.post("/auth", function(req, res) {
     var password = req.body.password;
     var usrname = req.body.usrname;
-    console.log(req.params.id);
-    var results;
+    console.log(req.query.id);
+    let results = {};
     var userSelectSQL = jsonSQL.build({
         type: "select",
         table: "Users",
-        condition: [{ YCA_ID: { $eq: req.params.id } }]
+        condition: [{ YCA_ID: { $eq: req.query.id } }]
     });
-    console.log("Getting user ", req.params.id);
+    console.log("Getting user ", req.query.id);
+    console.log(userSelectSQL.query);
     req.sql(userSelectSQL.query.replace(";", "") + JSON_FRMT_STR_NO_WRAP)
-        .param("p1", req.params.id, TYPES.BigInt)
+        .param("p1", req.query.id, TYPES.BigInt)
         .into(results, "{}");
-    console.log(results);
 
     res.json({ hello: "there" });
 });
